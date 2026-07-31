@@ -1,0 +1,21 @@
+{
+    "phones": [{
+        "id": "DSLKNEREJREKJ",
+        "name": "John Doe",
+        "sect": "TCT",
+        "tel": "088-345-6493"
+    },
+    {
+        "id": "xxswWWERFDDFDF",
+        "name": "Bob Bowie",
+        "sect": "CED",
+        "tel": "089-642-9533"
+    },
+    {
+        "id": "DEDWERWEeeeDFERE",
+        "name": "David Seban",
+        "sect": "TCT",
+        "tel": "081-563-6935"
+    }
+    ]
+}
