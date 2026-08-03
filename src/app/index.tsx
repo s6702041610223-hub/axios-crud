@@ -1,7 +1,8 @@
+import AddPhone from "@/components/addPhone";
 import Card from "@/components/card";
 import api from "@/utils/crud-api";
-import { useState } from "react";
-import { Button, FlatList, StyleSheet, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 
 type phone = {
   id: string;
@@ -12,6 +13,10 @@ type phone = {
 
 export default function Index() {
   const [data, setData] = useState([]);
+
+  useEffect(()=>{
+      getData();
+    }, [])
 
   const getData = async () => {
     try {
@@ -25,11 +30,8 @@ export default function Index() {
   }
   return (
     <View style={styles.container}>
-      <Text>Edit src/app/index.tsx to edit this screen.</Text>
-
-      <Button onPress={getData}>
-        <Text>Get Data</Text>
-      </Button>
+      <Text style={styles.title}>Student Phones</Text>
+      <AddPhone refresh={getData} />
       <FlatList 
         data={data}        
         keyExtractor={item => item.id}
@@ -52,7 +54,12 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
     justifyContent: "center",
+  },
+  title: {
+    textAlign: 'center',
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#44F',
   },
 });
