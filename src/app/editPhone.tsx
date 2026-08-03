@@ -4,7 +4,7 @@ import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'reac
 import { RadioButton } from 'react-native-paper'; // npm install ....
 import api from './utils/crud-api';
 
-const Edit = () => {
+const EditPhone = () => {
     const {id, name, sect, tel} = useLocalSearchParams();
     const [newName, setNewName] = useState(name);
     const [newSect, setNewSect] = useState(sect);
@@ -23,7 +23,7 @@ const Edit = () => {
                 sect: newSect,
                 tel: newTel
             });
-            router.navigate('/index');
+            router.navigate('/');
             //console.log(res);
         } catch(err) {
             console.log(err);
@@ -54,16 +54,29 @@ const Edit = () => {
                     value={newTel}
                     onChangeText={(text)=> setNewTel(text)}
                     placeholder='Phone No.' />
-            <TouchableOpacity onPress={()=>updatePhone()}
-                style={{backgroundColor: '#4C4', padding: 10,
-                    margin: 10, borderRadius: 5,}}>
-                <Text style={{color: 'white', fontWeight: 'bold'}}>Update Info</Text>
-            </TouchableOpacity>
 
+            <View style={{flexDirection: 'row', justifyContent: 'center', marginTop: 20,}}>
+                <TouchableOpacity onPress={()=>router.back()}
+                    style={{backgroundColor: 'rgb(209, 182, 2)', padding: 10,
+                        borderRadius: 5, marginRight: 10,
+                    }}>
+                    <Text style={{color: 'white', fontWeight: 'bold',
+                        textAlign: 'center',
+                    }}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={()=>updatePhone()}
+                    style={{backgroundColor: 'rgb(200, 100, 50)', padding: 10,
+                        borderRadius: 5,
+                    }}>
+                    <Text style={{color: 'white', fontWeight: 'bold',
+                        textAlign: 'center',
+                    }}>Update Info</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     )
 }
-export default Edit;
+export default EditPhone;
 
 const styles = StyleSheet.create({
     container: {

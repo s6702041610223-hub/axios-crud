@@ -1,9 +1,8 @@
-import AddPhone from "@/components/addPhone";
 import Card from "@/components/card";
 import api from "@/utils/crud-api";
+import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
-
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 type phone = {
   id: string;
   name:string;
@@ -31,7 +30,11 @@ export default function Index() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Student Phones</Text>
-      <AddPhone refresh={getData} />
+      <Pressable onPress={()=>router.push('/addPhone')}
+        style={{backgroundColor: 'green', padding: 10,
+          margin: 10, borderRadius: 5,}}>
+        <Text style={{color: 'white', textAlign: 'center'}}>Add Phone</Text>
+      </Pressable>
       <FlatList 
         data={data}        
         keyExtractor={item => item.id}
@@ -43,7 +46,7 @@ export default function Index() {
             tel: item.tel,
           }
           return (
-            <Card phone={phone} />
+            <Card phone={phone} refresh={getData} />
           )
         }}
       />

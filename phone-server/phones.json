@@ -1,16 +1,28 @@
 {
   "phones": [
     {
-      "name": "John Doexxxx",
-      "sect": "TCT",
-      "tel": "12345sdf",
-      "id": "G5PW7Qs-88o"
+      "name": "Steve Davis",
+      "sect": "CED",
+      "tel": "088-886-9845",
+      "id": "MfxT-wU6kf4"
     },
     {
-      "id": "C4N5eOD6V1U",
-      "name": "Bob",
+      "name": "John Doe",
       "sect": "TCT",
-      "tel": "1111111"
+      "tel": "084-965-4528",
+      "id": "lDFxrpGYDZs"
+    },
+    {
+      "name": "Eric Johnson",
+      "sect": "TCT",
+      "tel": "02-304-6942",
+      "id": "E66dcvN4Q7Y"
+    },
+    {
+      "id": "VatAdjDSg1Q",
+      "name": "Nene Royal",
+      "sect": "CED",
+      "tel": "087-985-3542"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

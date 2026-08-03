@@ -1,26 +1,50 @@
 
 import { Link } from "expo-router";
-import { Alert, Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import api from "../utils/crud-api";
 
 export default function Card(props) {
-    const updatePhone = (id:string) => {
-        Alert.alert("Update: " + id);
-    } 
 
-    const delPhone = (id: string) => {
-      Alert.alert("Delete: " + id);
-    }
+  const delPhone = async (id: string) => {
+    console.log("Delete phone with id:", id);
+        try {
+            const res = await api.delete('phones/' + id);
+            props.refresh();
+            console.log(res);
+        } catch(err) {
+            console.log(err);
+        }
+/*
+    Alert.alert(
+      "Are you sure?", // Title
+      "Do you really want to delete this file?", // Message
+      [
+        {
+          //text: "Cancel",
+          //onPress: () => console.log("Cancel Pressed"),
+          //style: "cancel" // Applies default cancel styling (iOS only)
+        },
+        { 
+          text: "Delete", 
+          onPress: () => console.log("Delete Pressed"),
+          style: "destructive" // Applies red text styling (iOS only)
+        }
+      ],
+      { cancelable: true } // Allows closing the popup by tapping outside (Android only)
+    );
+    */
+  };
 
     return (
         <View style={styles.container} key={props.phone.id}>
           <View style={styles.text}>
-            <Text style={styles.text}>Name: {props.phone.name}</Text>
-            <Text style={styles.text}>Sect: {props.phone.sect}</Text>
-            <Text style={styles.text}>Sect: {props.phone.tel}</Text>
+            <Text style={styles.text}>{props.phone.name}</Text>
+            <Text style={styles.text}>{props.phone.sect}</Text>
+            <Text style={styles.text}>{props.phone.tel}</Text>
           </View>
           <View style={{flexDirection: 'row'}}>
               <Link href={{
-                pathname: "/edit",
+                pathname: "/editPhone",
                 params: { 
                     id: props.phone.id, 
                     name:  props.phone.name,
@@ -28,13 +52,23 @@ export default function Card(props) {
                     tel: props.phone.tel,
                   },
                 }}            
-                push asChild>
-                    <Button title="Edit" />
+                push style={{backgroundColor: 'yellow', padding: 10,
+                    margin: 5, borderRadius: 5,}}>
+                    <Text style={{
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'black',
+                      fontWeight: 'bold',
+                      textAlign: 'center',
+                    }}>Edit</Text>
             </Link>
             <TouchableOpacity onPress={()=>delPhone(props.phone.id)}
-                style={{backgroundColor: 'rgb(213, 67, 9)', padding: 10,
-                    margin: 10, borderRadius: 5,}}>
-                <Text style={{color: 'white', fontWeight: 'bold'}}>Delelte</Text>
+               style={{backgroundColor: 'red', padding: 10,
+                    margin: 5, borderRadius: 5,}}>
+                <Text
+                  style={{padding: 5, margin: 5, borderRadius: 5, color: 'white', fontWeight: 'bold', textAlign: 'center',}}>
+                    Delete
+                </Text>
             </TouchableOpacity>
           </View>
         </View>
