@@ -15,7 +15,7 @@ export default function Index() {
 
   useEffect(()=>{
       getData();
-    }, [])
+  }, [])
 
   const getData = async () => {
     try {

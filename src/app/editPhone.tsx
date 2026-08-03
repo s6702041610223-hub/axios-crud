@@ -2,7 +2,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { RadioButton } from 'react-native-paper'; // npm install ....
-import api from './utils/crud-api';
+import api from '../utils/crud-api';
 
 const EditPhone = () => {
     const {id, name, sect, tel} = useLocalSearchParams();
@@ -28,7 +28,6 @@ const EditPhone = () => {
         } catch(err) {
             console.log(err);
         }
-
     }
 
     return(

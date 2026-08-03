@@ -40,7 +40,7 @@ export default function Card(props) {
           <View style={styles.text}>
             <Text style={styles.text}>{props.phone.name}</Text>
             <Text style={styles.text}>{props.phone.sect}</Text>
-            <Text style={styles.text}>{props.phone.tel}</Text>
+            <Text style={styles.text}>Tel No.: {props.phone.tel}</Text>
           </View>
           <View style={{flexDirection: 'row'}}>
               <Link href={{

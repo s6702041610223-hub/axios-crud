@@ -13,7 +13,7 @@ export default function AddPhone() {
     
     const addPhone = async () => {
         if(name===''|| sect==='' || tel==='') {
-            console.log("Please Enter phone info");
+            //console.log("Please Enter phone info");
             Alert.alert("Please Enter phone info");
             return;
         }
