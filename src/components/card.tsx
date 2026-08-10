@@ -1,101 +1,177 @@
-
 import { Link } from "expo-router";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import api from "../utils/crud-api";
 
-export default function Card(props) {
+type PhoneData = {
+  id: string;
+  name: string;
+  sect: string;
+  tel: string;
+};
 
+type CardProps = {
+  phone: PhoneData;
+  refresh: () => void;
+};
+
+export default function Card({ phone, refresh }: CardProps) {
   const delPhone = async (id: string) => {
-    console.log("Delete phone with id:", id);
-        try {
-            const res = await api.delete('phones/' + id);
-            props.refresh();
-            console.log(res);
-        } catch(err) {
-            console.log(err);
-        }
-/*
     Alert.alert(
-      "Are you sure?", // Title
-      "Do you really want to delete this file?", // Message
+      "Confirm Delete",
+      `Are you sure you want to delete ${phone.name}?`,
       [
+        { text: "Cancel", style: "cancel" },
         {
-          //text: "Cancel",
-          //onPress: () => console.log("Cancel Pressed"),
-          //style: "cancel" // Applies default cancel styling (iOS only)
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await api.delete("phones/" + id);
+              refresh();
+            } catch (err) {
+              console.log(err);
+            }
+          },
         },
-        { 
-          text: "Delete", 
-          onPress: () => console.log("Delete Pressed"),
-          style: "destructive" // Applies red text styling (iOS only)
-        }
-      ],
-      { cancelable: true } // Allows closing the popup by tapping outside (Android only)
+      ]
     );
-    */
   };
 
-    return (
-        <View style={styles.container} key={props.phone.id}>
-          <View style={styles.text}>
-            <Text style={styles.text}>{props.phone.name}</Text>
-            <Text style={styles.text}>{props.phone.sect}</Text>
-            <Text style={styles.text}>Tel No.: {props.phone.tel}</Text>
-          </View>
-          <View style={{flexDirection: 'row'}}>
-              <Link href={{
-                pathname: "/editPhone",
-                params: { 
-                    id: props.phone.id, 
-                    name:  props.phone.name,
-                    sect: props.phone.sect,
-                    tel: props.phone.tel,
-                  },
-                }}            
-                push style={{backgroundColor: 'yellow', padding: 10,
-                    margin: 5, borderRadius: 5,}}>
-                    <Text style={{
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'black',
-                      fontWeight: 'bold',
-                      textAlign: 'center',
-                    }}>Edit</Text>
-            </Link>
-            <TouchableOpacity onPress={()=>delPhone(props.phone.id)}
-               style={{backgroundColor: 'red', padding: 10,
-                    margin: 5, borderRadius: 5,}}>
-                <Text
-                  style={{padding: 5, margin: 5, borderRadius: 5, color: 'white', fontWeight: 'bold', textAlign: 'center',}}>
-                    Delete
-                </Text>
-            </TouchableOpacity>
-          </View>
+  return (
+    <View style={styles.card}>
+      <View style={styles.cardContent}>
+        {/* Avatar */}
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>
+            {phone.name.charAt(0).toUpperCase()}
+          </Text>
         </View>
-    )
+
+        {/* Info */}
+        <View style={styles.info}>
+          <Text style={styles.name}>{phone.name}</Text>
+          <View style={styles.badgeRow}>
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{phone.sect}</Text>
+            </View>
+          </View>
+          <Text style={styles.tel}>📞 {phone.tel}</Text>
+        </View>
+      </View>
+
+      {/* Action Buttons */}
+      <View style={styles.actions}>
+        <Link
+          href={{
+            pathname: "/editPhone",
+            params: {
+              id: phone.id,
+              name: phone.name,
+              sect: phone.sect,
+              tel: phone.tel,
+            },
+          }}
+          push
+          style={styles.editBtn}
+        >
+          <Text style={styles.editBtnText}>✏️ Edit</Text>
+        </Link>
+        <TouchableOpacity
+          onPress={() => delPhone(phone.id)}
+          style={styles.deleteBtn}
+        >
+          <Text style={styles.deleteBtnText}>🗑️ Delete</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 }
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: 'row',
+  card: {
+    backgroundColor: "#4F46E5",
+    borderRadius: 16,
+    padding: 16,
+    marginHorizontal: 16,
+    marginVertical: 6,
+    shadowColor: "#4F46E5",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  cardContent: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent:"space-between",
-    borderRadius: 10,
-    padding: 5,
-    marginVertical: 5,
-    marginHorizontal: 20,
-    backgroundColor: '#47F',
+    marginBottom: 12,
   },
-  list: {
-    backgroundColor: '#47F',
-    padding: 10,
-    margin: 5,
-    borderRadius: 10,
-    borderColor: 'red',
-    alignItems: 'center',
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 14,
   },
-  text: {
-    color: 'white',
+  avatarText: {
+    color: "#fff",
+    fontSize: 22,
+    fontWeight: "700",
+  },
+  info: {
+    flex: 1,
+  },
+  name: {
+    color: "#fff",
     fontSize: 18,
-  }
+    fontWeight: "700",
+    marginBottom: 4,
+  },
+  badgeRow: {
+    flexDirection: "row",
+    marginBottom: 4,
+  },
+  badge: {
+    backgroundColor: "rgba(255,255,255,0.2)",
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 12,
+  },
+  badgeText: {
+    color: "#E0E7FF",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  tel: {
+    color: "#C7D2FE",
+    fontSize: 14,
+  },
+  actions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 8,
+  },
+  editBtn: {
+    backgroundColor: "#F59E0B",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 10,
+  },
+  editBtnText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 14,
+  },
+  deleteBtn: {
+    backgroundColor: "#EF4444",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 10,
+  },
+  deleteBtnText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 14,
+  },
 });
