@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
   Alert,
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -13,24 +14,43 @@ import {
   View,
 } from "react-native";
 import { RadioButton } from "react-native-paper";
-import { v4 as uuidv4 } from "uuid";
+import * as ImagePicker from "expo-image-picker";
 
 export default function AddPhone() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [sect, setSect] = useState("");
   const [tel, setTel] = useState("");
+  const [image, setImage] = useState<string | null>(null);
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
 
   const addPhone = async () => {
     if (name === "" || sect === "" || tel === "") {
-      Alert.alert("Missing Information", "Please fill in all fields before saving.");
+      if (Platform.OS === "web") {
+        window.alert("Please fill in all fields before saving.");
+      } else {
+        Alert.alert("Missing Information", "Please fill in all fields before saving.");
+      }
       return;
     }
     const phone = {
-      id: uuidv4(),
+      id: Math.random().toString(36).substring(2, 11) + Date.now().toString(36),
       name,
       sect,
       tel,
+      image: image || undefined,
     };
 
     try {
@@ -38,9 +58,15 @@ export default function AddPhone() {
       setName("");
       setSect("");
       setTel("");
+      setImage(null);
       router.navigate("/");
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
+      if (Platform.OS === "web") {
+        window.alert("Error saving contact: " + (err.message || err));
+      } else {
+        Alert.alert("Error", "Could not save contact");
+      }
     }
   };
 
@@ -61,6 +87,20 @@ export default function AddPhone() {
 
         {/* Form Card */}
         <View style={styles.formCard}>
+          {/* Image Picker */}
+          <View style={styles.imagePickerContainer}>
+            <TouchableOpacity onPress={pickImage} style={styles.imagePickerBtn}>
+              {image ? (
+                <Image source={{ uri: image }} style={styles.previewImage} />
+              ) : (
+                <View style={styles.imagePlaceholder}>
+                  <Text style={styles.cameraIcon}>📸</Text>
+                  <Text style={styles.addPhotoText}>Add Photo</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
+
           {/* Name Field */}
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>👤 Full Name</Text>
@@ -199,6 +239,38 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 12,
     elevation: 4,
+  },
+  imagePickerContainer: {
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  imagePickerBtn: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: "#F3F4F6",
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
+    borderWidth: 2,
+    borderColor: "#E5E7EB",
+    borderStyle: "dashed",
+  },
+  previewImage: {
+    width: "100%",
+    height: "100%",
+  },
+  imagePlaceholder: {
+    alignItems: "center",
+  },
+  cameraIcon: {
+    fontSize: 24,
+    marginBottom: 4,
+  },
+  addPhotoText: {
+    fontSize: 12,
+    color: "#6B7280",
+    fontWeight: "600",
   },
   fieldGroup: {
     marginBottom: 20,

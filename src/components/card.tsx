@@ -1,5 +1,5 @@
 import { Link } from "expo-router";
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Platform, StyleSheet, Text, TouchableOpacity, View, Image } from "react-native";
 import api from "../utils/crud-api";
 
 type PhoneData = {
@@ -16,162 +16,222 @@ type CardProps = {
 
 export default function Card({ phone, refresh }: CardProps) {
   const delPhone = async (id: string) => {
-    Alert.alert(
-      "Confirm Delete",
-      `Are you sure you want to delete ${phone.name}?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await api.delete("phones/" + id);
-              refresh();
-            } catch (err) {
-              console.log(err);
-            }
+    const deleteAction = async () => {
+      try {
+        await api.delete("phones/" + id);
+        refresh();
+      } catch (err) {
+        console.log("Delete error:", err);
+      }
+    };
+
+    if (Platform.OS === "web") {
+      if (window.confirm(`Are you sure you want to delete ${phone.name}?`)) {
+        deleteAction();
+      }
+    } else {
+      Alert.alert(
+        "Confirm Delete",
+        `Are you sure you want to delete ${phone.name}?`,
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Delete",
+            style: "destructive",
+            onPress: deleteAction,
           },
-        },
-      ]
-    );
+        ]
+      );
+    }
+  };
+
+  // Extract initials for the avatar
+  const getInitials = (name: string) => {
+    return name ? name.charAt(0).toUpperCase() : "?";
   };
 
   return (
-    <View style={styles.card}>
-      <View style={styles.cardContent}>
-        {/* Avatar */}
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>
-            {phone.name.charAt(0).toUpperCase()}
-          </Text>
-        </View>
+    <View style={styles.cardContainer}>
+      <View style={styles.card}>
+        {/* Left Accent Bar */}
+        <View style={[styles.accentBar, { backgroundColor: phone.sect === 'CED' ? '#3B82F6' : '#8B5CF6' }]} />
+        
+        <View style={styles.contentWrapper}>
+          {/* Top Section: Avatar & Info */}
+          <View style={styles.topSection}>
+            <View style={[styles.avatar, { backgroundColor: phone.sect === 'CED' ? '#EFF6FF' : '#F5F3FF' }]}>
+              {phone.image ? (
+                <Image source={{ uri: phone.image }} style={styles.avatarImage} />
+              ) : (
+                <Text style={[styles.avatarText, { color: phone.sect === 'CED' ? '#1D4ED8' : '#6D28D9' }]}>
+                  {getInitials(phone.name)}
+                </Text>
+              )}
+            </View>
 
-        {/* Info */}
-        <View style={styles.info}>
-          <Text style={styles.name}>{phone.name}</Text>
-          <View style={styles.badgeRow}>
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{phone.sect}</Text>
+            <View style={styles.infoContainer}>
+              <Text style={styles.nameText} numberOfLines={1}>{phone.name}</Text>
+              <View style={styles.badgeContainer}>
+                <View style={[styles.badge, { backgroundColor: phone.sect === 'CED' ? '#DBEAFE' : '#EDE9FE' }]}>
+                  <Text style={[styles.badgeText, { color: phone.sect === 'CED' ? '#1E40AF' : '#5B21B6' }]}>
+                    {phone.sect}
+                  </Text>
+                </View>
+                <Text style={styles.telText}>📞 {phone.tel}</Text>
+              </View>
             </View>
           </View>
-          <Text style={styles.tel}>📞 {phone.tel}</Text>
-        </View>
-      </View>
 
-      {/* Action Buttons */}
-      <View style={styles.actions}>
-        <Link
-          href={{
-            pathname: "/editPhone",
-            params: {
-              id: phone.id,
-              name: phone.name,
-              sect: phone.sect,
-              tel: phone.tel,
-            },
-          }}
-          push
-          style={styles.editBtn}
-        >
-          <Text style={styles.editBtnText}>✏️ Edit</Text>
-        </Link>
-        <TouchableOpacity
-          onPress={() => delPhone(phone.id)}
-          style={styles.deleteBtn}
-        >
-          <Text style={styles.deleteBtnText}>🗑️ Delete</Text>
-        </TouchableOpacity>
+          {/* Divider */}
+          <View style={styles.divider} />
+
+          {/* Action Buttons */}
+          <View style={styles.actionContainer}>
+            <Link
+              href={{
+                pathname: "/editPhone",
+                params: {
+                  id: phone.id,
+                  name: phone.name,
+                  sect: phone.sect,
+                  tel: phone.tel,
+                  image: phone.image || "",
+                },
+              }}
+              asChild
+            >
+              <TouchableOpacity style={styles.editButton} activeOpacity={0.7}>
+                <Text style={styles.editButtonText}>✏️ Edit</Text>
+              </TouchableOpacity>
+            </Link>
+
+            <TouchableOpacity 
+              style={styles.deleteButton} 
+              onPress={() => delPhone(phone.id)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.deleteButtonText}>🗑️ Delete</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "#4F46E5",
-    borderRadius: 16,
-    padding: 16,
+  cardContainer: {
     marginHorizontal: 16,
-    marginVertical: 6,
-    shadowColor: "#4F46E5",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
+    marginVertical: 8,
   },
-  cardContent: {
+  card: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    flexDirection: "row",
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: "#F3F4F6",
+  },
+  accentBar: {
+    width: 6,
+  },
+  contentWrapper: {
+    flex: 1,
+    padding: 16,
+  },
+  topSection: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
   },
   avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: "rgba(255,255,255,0.2)",
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 14,
+    marginRight: 16,
+    overflow: "hidden",
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
   },
   avatarText: {
-    color: "#fff",
     fontSize: 22,
-    fontWeight: "700",
+    fontWeight: "800",
   },
-  info: {
+  infoContainer: {
     flex: 1,
+    justifyContent: "center",
   },
-  name: {
-    color: "#fff",
+  nameText: {
     fontSize: 18,
     fontWeight: "700",
-    marginBottom: 4,
+    color: "#1F2937",
+    marginBottom: 6,
+    letterSpacing: -0.3,
   },
-  badgeRow: {
+  badgeContainer: {
     flexDirection: "row",
-    marginBottom: 4,
-  },
-  badge: {
-    backgroundColor: "rgba(255,255,255,0.2)",
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 12,
-  },
-  badgeText: {
-    color: "#E0E7FF",
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  tel: {
-    color: "#C7D2FE",
-    fontSize: 14,
-  },
-  actions: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
+    alignItems: "center",
+    flexWrap: "wrap",
     gap: 8,
   },
-  editBtn: {
-    backgroundColor: "#F59E0B",
+  badge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  badgeText: {
+    fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 0.5,
+  },
+  telText: {
+    fontSize: 14,
+    color: "#6B7280",
+    fontWeight: "500",
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#F3F4F6",
+    marginVertical: 14,
+  },
+  actionContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 12,
+  },
+  editButton: {
+    backgroundColor: "#FEF3C7",
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#FDE68A",
   },
-  editBtnText: {
-    color: "#fff",
-    fontWeight: "700",
+  editButtonText: {
+    color: "#D97706",
     fontSize: 14,
+    fontWeight: "700",
   },
-  deleteBtn: {
-    backgroundColor: "#EF4444",
+  deleteButton: {
+    backgroundColor: "#FEE2E2",
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#FECACA",
   },
-  deleteBtnText: {
-    color: "#fff",
-    fontWeight: "700",
+  deleteButtonText: {
+    color: "#DC2626",
     fontSize: 14,
+    fontWeight: "700",
   },
 });

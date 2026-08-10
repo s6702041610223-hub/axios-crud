@@ -1,8 +1,9 @@
 import api from "@/utils/crud-api";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Alert,
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -13,33 +14,61 @@ import {
   View,
 } from "react-native";
 import { RadioButton } from "react-native-paper";
+import * as ImagePicker from "expo-image-picker";
 
 export default function EditPhone() {
-  const { id, name, sect, tel } = useLocalSearchParams<{
-    id: string;
-    name: string;
-    sect: string;
-    tel: string;
-  }>();
-  const [newName, setNewName] = useState(name || "");
-  const [newSect, setNewSect] = useState(sect || "");
-  const [newTel, setNewTel] = useState(tel || "");
   const router = useRouter();
+  const params = useLocalSearchParams();
+  
+  const [newName, setNewName] = useState("");
+  const [newSect, setNewSect] = useState("");
+  const [newTel, setNewTel] = useState("");
+  const [image, setImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (params.name) setNewName(params.name as string);
+    if (params.sect) setNewSect(params.sect as string);
+    if (params.tel) setNewTel(params.tel as string);
+    if (params.image) setImage(params.image as string);
+  }, [params]);
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
 
   const updatePhone = async () => {
     if (newName === "" || newSect === "" || newTel === "") {
-      Alert.alert("Missing Information", "Please fill in all fields before updating.");
+      if (Platform.OS === "web") {
+        window.alert("Please fill in all fields before updating.");
+      } else {
+        Alert.alert("Missing Information", "Please fill in all fields before updating.");
+      }
       return;
     }
     try {
-      await api.put("phones/" + id, {
+      await api.put("phones/" + params.id, {
         name: newName,
         sect: newSect,
         tel: newTel,
+        image: image || undefined,
       });
       router.navigate("/");
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
+      if (Platform.OS === "web") {
+        window.alert("Error updating contact: " + (err.message || err));
+      } else {
+        Alert.alert("Error", "Could not update contact");
+      }
     }
   };
 
@@ -54,12 +83,26 @@ export default function EditPhone() {
           <Text style={styles.headerEmoji}>✏️</Text>
           <Text style={styles.headerTitle}>Edit Contact</Text>
           <Text style={styles.headerSubtitle}>
-            Update {name}'s information
+            Update {params.name}'s information below
           </Text>
         </View>
 
         {/* Form Card */}
         <View style={styles.formCard}>
+          {/* Image Picker */}
+          <View style={styles.imagePickerContainer}>
+            <TouchableOpacity onPress={pickImage} style={styles.imagePickerBtn}>
+              {image ? (
+                <Image source={{ uri: image }} style={styles.previewImage} />
+              ) : (
+                <View style={styles.imagePlaceholder}>
+                  <Text style={styles.cameraIcon}>📸</Text>
+                  <Text style={styles.addPhotoText}>Change Photo</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
+
           {/* Name Field */}
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>👤 Full Name</Text>
@@ -84,7 +127,7 @@ export default function EditPhone() {
                   ]}
                   onPress={() => setNewSect("CED")}
                 >
-                  <RadioButton value="CED" color="#4F46E5" />
+                  <RadioButton value="CED" color="#F59E0B" />
                   <Text
                     style={[
                       styles.radioText,
@@ -101,7 +144,7 @@ export default function EditPhone() {
                   ]}
                   onPress={() => setNewSect("TCT")}
                 >
-                  <RadioButton value="TCT" color="#4F46E5" />
+                  <RadioButton value="TCT" color="#F59E0B" />
                   <Text
                     style={[
                       styles.radioText,
@@ -140,10 +183,10 @@ export default function EditPhone() {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={updatePhone}
-            style={styles.updateBtn}
+            style={styles.saveBtn}
             activeOpacity={0.8}
           >
-            <Text style={styles.updateBtnText}>✓ Update Contact</Text>
+            <Text style={styles.saveBtnText}>✓ Update Contact</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -199,6 +242,38 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 4,
   },
+  imagePickerContainer: {
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  imagePickerBtn: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: "#F3F4F6",
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
+    borderWidth: 2,
+    borderColor: "#E5E7EB",
+    borderStyle: "dashed",
+  },
+  previewImage: {
+    width: "100%",
+    height: "100%",
+  },
+  imagePlaceholder: {
+    alignItems: "center",
+  },
+  cameraIcon: {
+    fontSize: 24,
+    marginBottom: 4,
+  },
+  addPhotoText: {
+    fontSize: 12,
+    color: "#6B7280",
+    fontWeight: "600",
+  },
   fieldGroup: {
     marginBottom: 20,
   },
@@ -234,8 +309,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   radioOptionSelected: {
-    backgroundColor: "#EEF2FF",
-    borderColor: "#4F46E5",
+    backgroundColor: "#FEF3C7",
+    borderColor: "#F59E0B",
   },
   radioText: {
     fontSize: 16,
@@ -243,7 +318,7 @@ const styles = StyleSheet.create({
     color: "#6B7280",
   },
   radioTextSelected: {
-    color: "#4F46E5",
+    color: "#D97706",
   },
   buttonRow: {
     flexDirection: "row",
@@ -264,7 +339,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
   },
-  updateBtn: {
+  saveBtn: {
     flex: 2,
     backgroundColor: "#F59E0B",
     paddingVertical: 16,
@@ -276,7 +351,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 6,
   },
-  updateBtnText: {
+  saveBtnText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "700",

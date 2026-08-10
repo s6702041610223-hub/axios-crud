@@ -23,6 +23,12 @@
       "name": "Nene Royal",
       "sect": "CED",
       "tel": "087-985-3542"
+    },
+    {
+      "id": "dm-9aVJ4CB0",
+      "name": "asd",
+      "sect": "CED",
+      "tel": "09958610"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
